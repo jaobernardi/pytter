@@ -1,17 +1,17 @@
 import inspect
 
 
-class _InitializeArguments:
-    def __init__(self, function, **kwargs):
+class InitializeArguments:
+    """
+    Automaticly casts the items in a function's args annotation
+    """
+    def __init__(self, function):
         self.function = function
-        self.init_arguments = kwargs
-
 
     @property
     def arguments(self):
         sig_values = list(inspect.signature(self.function).parameters.values())
         return sig_values
-
 
     def __call__(self, *args, **kwargs):
         # Default arguments to None
@@ -19,16 +19,12 @@ class _InitializeArguments:
 
         # Build input keyword arguments
         for arg_value, arg in zip(args, self.arguments):
-            input_args[arg.name] = arg.default(arg_value) if arg.default not in [arg.empty, None] else arg_value
+            input_args[arg.name] = arg.annotation(arg_value) if arg.annotation not in [arg.empty, None] else arg_value
         
-        for arg_name, arg_value, arg in zip(kwargs.items(), kwargs.values(), self.arguments):
-            input_args[arg_name] = arg.default(arg_value) if arg.default not in [arg.empty, None] else arg_value
+        for arg_name, arg_value, arg in zip(kwargs.keys(), kwargs.values(), self.arguments):
+            input_args[arg_name] = arg.annotation(arg_value) if arg.annotation not in [arg.empty, None] else arg_value
+
+        print(input_args)
 
         # Call the function
         return self.function(**input_args)
-
-
-def InitializeArguments(**kwargs):
-    def wrapper(function):
-        return _InitializeArguments(function, **kwargs)
-    return wrapper
