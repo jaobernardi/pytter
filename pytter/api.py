@@ -28,15 +28,21 @@ class ApiInterface:
         return session
 
     def request_fabric(self, method, endpoint, params={}, session=None, json=None, oauth=False):
-
+        # Get session
         session = self.get_session(oauth) if not session else session
-
+        # Make the HTTP request using the session
         req = session.request(method, "https://api.twitter.com"+endpoint, params=params, json=json, auth=self.get_auth() if oauth else None)
-        return req
+        # Match the request's response status code.
         match req.status_code:
+            # TODO: Parsing with the No Content and OK status codes.
             case 201 | 200:
                 return req
+            # TODO: Implement exceptions for 400 codes.
             case _:
                 raise Exception(f"Placeholder — Failed to make request (code {req.status_code})")
 
-    
+
+class TwitterAPI(ApiInterface):
+    def get_webhooks(self):
+        return
+
