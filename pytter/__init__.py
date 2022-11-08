@@ -1,1 +1,3 @@
-__version__ = '0.1.0'
+from .stream import Stream
+from .client import Client
+from .structures import *
